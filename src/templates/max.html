@@ -1,0 +1,72 @@
+{% extends 'index.html' %}
+
+{% block head %}
+<!-- You can include custom CSS here if needed -->
+{% endblock %}
+
+{% block body %}
+<br><br>
+<h1>Variables d'Écart – Maximisation</h1>
+<p>Solveur à 3 variables</p>
+
+<!-- Main Form -->
+<form method="POST">
+    <!-- Objective Function Z -->
+    <label>Z =
+        <input type="text" size="1" name="x1" required> X1 +
+        <input type="text" size="1" name="x2" required> X2 +
+        <input type="text" size="1" name="x3" required> X3
+    </label>
+    <br><br>
+
+    <!-- Constraints -->
+    <p>Contraintes :</p>
+    <div id="constraints-container">
+        <!-- JS will dynamically insert constraints here -->
+    </div>
+
+    <button type="button" onclick="add_constraint()">Ajouter une contrainte</button>
+    <br><br>
+    <button type="submit">Soumettre</button>
+</form>
+
+<!-- Result Table -->
+{% if headers and rows %}
+    <h2>Tableau Simplexe</h2>
+    <table border="1" cellpadding="5" cellspacing="0">
+        <thead>
+            <tr>
+                {% for header in headers %}
+                    <th>{{ header }}</th>
+                {% endfor %}
+            </tr>
+        </thead>
+        <tbody>
+            {% for row in rows %}
+                <tr>
+                    {% for cell in row %}
+                        <td>{{ cell }}</td>
+                    {% endfor %}
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endif %}
+
+<!-- JavaScript to Add Constraints -->
+<script>
+function add_constraint() {
+    const container = document.getElementById('constraints-container');
+
+    const newConstraint = document.createElement('div');
+    newConstraint.innerHTML = `
+        <label><input type="text" size="1" name="cx1" required> X1 +</label>
+        <label><input type="text" size="1" name="cx2" required> X2 +</label>
+        <label><input type="text" size="1" name="cx3" required> X3 </label>
+        = <label><input type="text" size="1" name="rhs" required> RHS</label>
+        <br>
+    `;
+    container.appendChild(newConstraint);
+}
+</script>
+{% endblock %}

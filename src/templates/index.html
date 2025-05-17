@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Solveur</title>
+    {% block head %} {% endblock %}
+</head> 
+<body>
+    <h1>Solveur</h1>
+    <form method="POST">
+        <label><input type="radio" name="option" value="max"> Max (z) </label><br>
+        <label><input type="radio" name="option" value="min"> Min (Z) </label><br>
+
+        <button type ="submit">Submit</button>
+    </form>
+    
+    {% block body %} {% endblock %}
+</body>
+</html>
