@@ -13,9 +13,9 @@
 <form method="POST">
     <!-- Objective Function Z -->
     <label>Z =
-        <input type="text" size="1" name="x1" required> X1 +
-        <input type="text" size="1" name="x2" required> X2 +
-        <input type="text" size="1" name="x3" required> X3
+        <input type="number" size="1" name="x1" required> X1 +
+        <input type="number" size="1" name="x2" required> X2 +
+        <input type="number" size="1" name="x3" required> X3
     </label>
     <br><br>
 
@@ -51,6 +51,21 @@
             {% endfor %}
         </tbody>
     </table>
+    
+    {% if solution %}
+    <h2>Solution Optimale</h2>
+    <div class="solution-container">
+        <p><strong>Statut:</strong> {% if solution.success %}Résolu avec succès{% else %}Non résolu{% endif %}</p>
+        <p><strong>Message:</strong> {{ solution.status }}</p>
+        <p><strong>Valeur optimale de Z:</strong> {{ solution.objective_value|round(4) }}</p>
+        <h3>Variables de décision:</h3>
+        <ul>
+            <li><strong>X1 =</strong> {{ solution.x1|round(4) }}</li>
+            <li><strong>X2 =</strong> {{ solution.x2|round(4) }}</li>
+            <li><strong>X3 =</strong> {{ solution.x3|round(4) }}</li>
+        </ul>
+    </div>
+    {% endif %}
 {% endif %}
 
 <!-- JavaScript to Add Constraints -->
@@ -60,10 +75,10 @@ function add_constraint() {
 
     const newConstraint = document.createElement('div');
     newConstraint.innerHTML = `
-        <label><input type="text" size="1" name="cx1" required> X1 +</label>
-        <label><input type="text" size="1" name="cx2" required> X2 +</label>
-        <label><input type="text" size="1" name="cx3" required> X3 </label>
-        = <label><input type="text" size="1" name="rhs" required> RHS</label>
+        <label><input type="number" size="1" name="cx1" required> X1 +</label>
+        <label><input type="number" size="1" name="cx2" required> X2 +</label>
+        <label><input type="number" size="1" name="cx3" required> X3 </label>
+        = <label><input type="number" size="1" name="rhs" required> RHS</label>
         <br>
     `;
     container.appendChild(newConstraint);
