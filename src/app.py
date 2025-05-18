@@ -1,5 +1,6 @@
 from flask import Flask, render_template, request, redirect, url_for
 import numpy as np
+from scipy.optimize import linprog
 
 app = Flask(__name__)
 
@@ -19,89 +20,55 @@ def index():
 def max_route():
     if request.method == 'POST':
         # Objective function input (Z)
-        x1 = request.form.get("x1")
-        x2 = request.form.get("x2")
-        x3 = request.form.get("x3")
+        x1 = float(request.form.get("x1") or 0)
+        x2 = float(request.form.get("x2") or 0)
+        x3 = float(request.form.get("x3") or 0)
 
-        # Convert to floats and negate for Z row
-        z_row = [
-            '1',                         # Z column
-            str(-float(x1 or 0)),        # x1
-            str(-float(x2 or 0)),        # x2
-            str(-float(x3 or 0)),        # x3
-        ]
-
+        # For maximization, we negate the objective coefficients for SciPy (which minimizes by default)
+        c = [-x1, -x2, -x3]
+        
         # Constraints
-        cx1 = request.form.getlist("cx1")
-        cx2 = request.form.getlist("cx2")
-        cx3 = request.form.getlist("cx3")
-        rhs = request.form.getlist("rhs")
+        cx1 = [float(val) for val in request.form.getlist("cx1")]
+        cx2 = [float(val) for val in request.form.getlist("cx2")]
+        cx3 = [float(val) for val in request.form.getlist("cx3")]
+        rhs = [float(val) for val in request.form.getlist("rhs")]
         num_constraints = len(cx1)
-
-        # Add zeroed slack variables to Z row
-        z_row += ['0'] * num_constraints  # Slack vars
-        z_row.append('0')  # RHS for Z
-
-        # Constraint rows
-        table_rows = [z_row]  # Start with Z row
-
+        
+        # Create constraint matrix A_ub for SciPy
+        A_ub = []
         for i in range(num_constraints):
-            row = [
-                '0',                  # Z column for constraints
-                cx1[i],
-                cx2[i],
-                cx3[i],
-            ]
-            # Identity matrix for slack variables
+            A_ub.append([cx1[i], cx2[i], cx3[i]])
+        
+        # Solve using SciPy
+        result = linprog(c, A_ub=A_ub, b_ub=rhs, method='highs')
+        
+        z_row = ['1'] + [str(-float(val)) for val in [x1, x2, x3]] + ['0'] * num_constraints + ['0']
+        table_rows = [z_row]
+        
+        for i in range(num_constraints):
+            row = ['0', str(cx1[i]), str(cx2[i]), str(cx3[i])]
             row += ['1' if j == i else '0' for j in range(num_constraints)]
-            row.append(rhs[i])
+            row.append(str(rhs[i]))
             table_rows.append(row)
-
+        
         headers = ['Z', 'x1', 'x2', 'x3'] + [f"e{j+1}" for j in range(num_constraints)] + ['RHS']
-
-        return render_template('max.html', headers=headers, rows=table_rows)
-
-        done = False
-        while not done:
-            tableau, done = simplex_iteration(tableau)
+        
+        optimal_solution = {
+            'x1': result.x[0],
+            'x2': result.x[1],
+            'x3': result.x[2],
+            'objective_value': -result.fun,
+            'success': result.success,
+            'status': result.message
+        }
+        
+        return render_template('max.html', headers=headers, rows=table_rows, solution=optimal_solution)
 
     return render_template('max.html')
-
-
 
 @app.route('/min')
 def min_route():
     return render_template('min.html')
-
-
-def simplex_iteration(tableau):
-    tableau = np.array(tableau, dtype=float)
-    z_row = tableau[0, 1:-1]
-    if all(c >= 0 for c in z_row):
-        return tableau.tolist(), True
-
-    pivot_col = np.argmin(z_row) + 1
-
-    ratios = []
-    for row in tableau[1:]:
-        val = row[pivot_col]
-        rhs = row[-1]
-        if val > 0:
-            ratios.append(rhs / val)
-        else:
-            ratios.append(np.inf)
-
-    pivot_row_index = np.argmin(ratios) + 1
-
-    pivot_element = tableau[pivot_row_index][pivot_col]
-    tableau[pivot_row_index] = tableau[pivot_row_index] / pivot_element
-
-    for i in range(len(tableau)):
-        if i != pivot_row_index:
-            row_factor = tableau[i][pivot_col]
-            tableau[i] -= row_factor * tableau[pivot_row_index]
-
-    return tableau.tolist(), False
 
 
 if __name__ == '__main__':
