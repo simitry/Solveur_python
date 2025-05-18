@@ -1,0 +1,120 @@
+{% extends "index.html" %}
+
+{% block head %}
+
+{% endblock %}
+
+{% block body %}
+    <h2>Méthode de Dualité</h2>
+    <form method="POST">
+        <div class="form-group">
+            <h3>Fonction Objective (Maximiser Z):</h3>
+            <label>x1:</label>
+            <input type="number" step="any" name="x1" required>
+            <label>x2:</label>
+            <input type="number" step="any" name="x2" required>
+            <label>x3:</label>
+            <input type="number" step="any" name="x3" required>
+        </div>
+
+        <h3>Contraintes (≤):</h3>
+        <div id="constraints-container">
+            <div class="constraint">
+                <label>x1:</label>
+                <input type="number" step="any" name="cx1" required>
+                <label>x2:</label>
+                <input type="number" step="any" name="cx2" required>
+                <label>x3:</label>
+                <input type="number" step="any" name="cx3" required>
+                <label>≤</label>
+                <input type="number" step="any" name="rhs" required>
+            </div>
+        </div>
+
+        <button type="button" onclick="addConstraint()">Ajouter une Contrainte</button>
+        <button type="submit">Résoudre</button>
+    </form>
+
+    {% if duality_data %}
+        <div class="problem-container">
+            <div class="problem">
+                <h3>Problème Primal (Original)</h3>
+                <p>Maximiser Z = {{ duality_data.primal.objective[0] }}x₁ + {{ duality_data.primal.objective[1] }}x₂ + {{ duality_data.primal.objective[2] }}x₃</p>
+                
+                <p>Sous les contraintes:</p>
+                <ul>
+                    {% for constraint in duality_data.primal.constraints %}
+                    <li>{{ constraint[0] }}x₁ + {{ constraint[1] }}x₂ + {{ constraint[2] }}x₃ ≤ {{ duality_data.primal.rhs[loop.index0] }}</li>
+                    {% endfor %}
+                </ul>
+
+                <div class="solution">
+                    <h4>Solution Primal:</h4>
+                    {% if duality_data.primal.solution.status %}
+                        <p>x₁ = {{ duality_data.primal.solution.x[0]|round(4) }}</p>
+                        <p>x₂ = {{ duality_data.primal.solution.x[1]|round(4) }}</p>
+                        <p>x₃ = {{ duality_data.primal.solution.x[2]|round(4) }}</p>
+                        <p>Z = {{ duality_data.primal.solution.objective_value|round(4) }}</p>
+                    {% else %}
+                        <p>Pas de solution optimale trouvée</p>
+                        <p>Status: {{ duality_data.primal.solution.status }}</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="problem">
+                <h3>Problème Dual</h3>
+                <p>Minimiser W = {{ duality_data.dual.objective[0] }}y₁ {% for i in range(1, duality_data.dual.objective|length) %}+ {{ duality_data.dual.objective[i] }}y_{{ i+1 }}{% endfor %}</p>
+                
+                <p>Sous les contraintes:</p>
+                <ul>
+                    {% for constraint in duality_data.dual.constraints %}
+                    <li>{{ constraint[0] }}y₁ {% for i in range(1, constraint|length) %}+ {{ constraint[i] }}y_{{ i+1 }}{% endfor %} ≥ {{ duality_data.dual.rhs[loop.index0] }}</li>
+                    {% endfor %}
+                </ul>
+
+                <div class="solution">
+                    <h4>Solution Dual:</h4>
+                    {% if duality_data.dual.solution.status %}
+                        <p>y₁ = {{ duality_data.dual.solution.x[0]|round(4) }}</p>
+                        {% for i in range(1, duality_data.dual.solution.x|length) %}
+                        <p>y_{{ i+1 }} = {{ duality_data.dual.solution.x[i]|round(4) }}</p>
+                        {% endfor %}
+                        <p>W = {{ duality_data.dual.solution.objective_value|round(4) }}</p>
+                    {% else %}
+                        <p>Pas de solution optimale trouvée</p>
+                        <p>Status: {{ duality_data.dual.solution.status }}</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="solution" style="text-align: center; margin-top: 20px;">
+            <h3>Vérification de Dualité</h3>
+            <p>Valeur optimale du primal (Z) = {{ duality_data.primal.solution.objective_value|round(4) }}</p>
+            <p>Valeur optimale du dual (W) = {{ duality_data.dual.solution.objective_value|round(4) }}</p>
+            {% if duality_data.primal.solution.status and duality_data.dual.solution.status %}
+                <p><strong>Théorème de dualité forte: Z = W</strong></p>
+            {% endif %}
+        </div>
+    {% endif %}
+
+    <script>
+        function addConstraint() {
+            const container = document.getElementById('constraints-container');
+            const newConstraint = document.createElement('div');
+            newConstraint.className = 'constraint';
+            newConstraint.innerHTML = `
+                <label>x1:</label>
+                <input type="number" step="any" name="cx1" required>
+                <label>x2:</label>
+                <input type="number" step="any" name="cx2" required>
+                <label>x3:</label>
+                <input type="number" step="any" name="cx3" required>
+                <label>≤</label>
+                <input type="number" step="any" name="rhs" required>
+            `;
+            container.appendChild(newConstraint);
+        }
+    </script>
+{% endblock %}

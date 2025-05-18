@@ -15,7 +15,8 @@
     <label>Z =
         <input type="number" size="1" name="x1" required> X1 +
         <input type="number" size="1" name="x2" required> X2 +
-        <input type="number" size="1" name="x3" required> X3
+        <input type="number" size="1" name="x3" required> X3 +
+        <input type="number" size="1" name="x4" required> X4
     </label>
     <br><br>
 
@@ -63,6 +64,7 @@
             <li><strong>X1 =</strong> {{ solution.x1|round(4) }}</li>
             <li><strong>X2 =</strong> {{ solution.x2|round(4) }}</li>
             <li><strong>X3 =</strong> {{ solution.x3|round(4) }}</li>
+            <li><strong>X4 =</strong> {{ solution.x4|round(4) }}</li>
         </ul>
     </div>
     {% endif %}
@@ -78,6 +80,7 @@ function add_constraint() {
         <label><input type="number" size="1" name="cx1" required> X1 +</label>
         <label><input type="number" size="1" name="cx2" required> X2 +</label>
         <label><input type="number" size="1" name="cx3" required> X3 </label>
+        <label><input type="number" size="1" name="cx4" required> X4 </label>
         = <label><input type="number" size="1" name="rhs" required> RHS</label>
         <br>
     `;

@@ -1,0 +1,72 @@
+{% extends "index.html" %}
+
+{% block head %}
+
+{% endblock %}
+
+{% block body %}
+    <h2>Minimization Problem</h2>
+    <form method="POST">
+        <div class="form-group">
+            <h3>Objective Function (Minimize Z):</h3>
+            <label>x1:</label>
+            <input type="number" step="any" name="x1" required>
+            <label>x2:</label>
+            <input type="number" step="any" name="x2" required>
+            <label>x3:</label>
+            <input type="number" step="any" name="x3" required>
+        </div>
+
+        <h3>Constraints (≥):</h3>
+        <div id="constraints-container">
+            <div class="constraint">
+                <label>x1:</label>
+                <input type="number" step="any" name="cx1" required>
+                <label>x2:</label>
+                <input type="number" step="any" name="cx2" required>
+                <label>x3:</label>
+                <input type="number" step="any" name="cx3" required>
+                <label>≥</label>
+                <input type="number" step="any" name="rhs" required>
+            </div>
+        </div>
+
+        <button type="button" onclick="addConstraint()">Add Constraint</button>
+        <button type="submit">Solve</button>
+    </form>
+
+    {% if solution %}
+        <div class="solution">
+            <h3>Solution:</h3>
+            {% if solution.success %}
+                <p>Optimal solution found!</p>
+                <p>x1 = {{ solution.x1|round(4) }}</p>
+                <p>x2 = {{ solution.x2|round(4) }}</p>
+                <p>x3 = {{ solution.x3|round(4) }}</p>
+                <p>Minimum Z = {{ solution.objective_value|round(4) }}</p>
+            {% else %}
+                <p>No optimal solution found.</p>
+                <p>Status: {{ solution.status }}</p>
+            {% endif %}
+        </div>
+    {% endif %}
+
+    <script>
+        function addConstraint() {
+            const container = document.getElementById('constraints-container');
+            const newConstraint = document.createElement('div');
+            newConstraint.className = 'constraint';
+            newConstraint.innerHTML = `
+                <label>x1:</label>
+                <input type="number" step="any" name="cx1" required>
+                <label>x2:</label>
+                <input type="number" step="any" name="cx2" required>
+                <label>x3:</label>
+                <input type="number" step="any" name="cx3" required>
+                <label>≥</label>
+                <input type="number" step="any" name="rhs" required>
+            `;
+            container.appendChild(newConstraint);
+        }
+    </script>
+{% endblock %}
