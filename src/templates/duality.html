@@ -15,6 +15,8 @@
             <input type="number" step="any" name="x2" required>
             <label>x3:</label>
             <input type="number" step="any" name="x3" required>
+            <label>x4:</label>
+            <input type="number" step="any" name="x4" required>
         </div>
 
         <h3>Contraintes (≤):</h3>
@@ -26,6 +28,8 @@
                 <input type="number" step="any" name="cx2" required>
                 <label>x3:</label>
                 <input type="number" step="any" name="cx3" required>
+                <label>x4:</label>
+                <input type="number" step="any" name="cx4" required>
                 <label>≤</label>
                 <input type="number" step="any" name="rhs" required>
             </div>
@@ -39,12 +43,12 @@
         <div class="problem-container">
             <div class="problem">
                 <h3>Problème Primal (Original)</h3>
-                <p>Maximiser Z = {{ duality_data.primal.objective[0] }}x₁ + {{ duality_data.primal.objective[1] }}x₂ + {{ duality_data.primal.objective[2] }}x₃</p>
+                <p>Maximiser Z = {{ duality_data.primal.objective[0] }}x₁ + {{ duality_data.primal.objective[1] }}x₂ + {{ duality_data.primal.objective[2] }}x₃ + {{ duality_data.primal.objective[3] }}x4</p>
                 
                 <p>Sous les contraintes:</p>
                 <ul>
                     {% for constraint in duality_data.primal.constraints %}
-                    <li>{{ constraint[0] }}x₁ + {{ constraint[1] }}x₂ + {{ constraint[2] }}x₃ ≤ {{ duality_data.primal.rhs[loop.index0] }}</li>
+                    <li>{{ constraint[0] }}x₁ + {{ constraint[1] }}x₂ + {{ constraint[2] }}x₃ +{{ constraint[3] }}x4 ≤ {{ duality_data.primal.rhs[loop.index0] }}</li>
                     {% endfor %}
                 </ul>
 
@@ -54,6 +58,7 @@
                         <p>x₁ = {{ duality_data.primal.solution.x[0]|round(4) }}</p>
                         <p>x₂ = {{ duality_data.primal.solution.x[1]|round(4) }}</p>
                         <p>x₃ = {{ duality_data.primal.solution.x[2]|round(4) }}</p>
+                        <p>x4 = {{ duality_data.primal.solution.x[3]|round(4) }}</p>
                         <p>Z = {{ duality_data.primal.solution.objective_value|round(4) }}</p>
                     {% else %}
                         <p>Pas de solution optimale trouvée</p>
@@ -111,6 +116,8 @@
                 <input type="number" step="any" name="cx2" required>
                 <label>x3:</label>
                 <input type="number" step="any" name="cx3" required>
+                <label>x4:</label>
+                <input type="number" step="any" name="cx4" required>
                 <label>≤</label>
                 <input type="number" step="any" name="rhs" required>
             `;

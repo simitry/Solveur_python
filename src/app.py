@@ -118,13 +118,15 @@ def duality_route():
         primal_obj = [
             float(request.form.get("x1") or 0),
             float(request.form.get("x2") or 0),
-            float(request.form.get("x3") or 0)
+            float(request.form.get("x3") or 0),
+            float(request.form.get("x4") or 0)
         ]
         
         # Get constraints
         cx1 = [float(val) for val in request.form.getlist("cx1")]
         cx2 = [float(val) for val in request.form.getlist("cx2")]
         cx3 = [float(val) for val in request.form.getlist("cx3")]
+        cx4 = [float(val) for val in request.form.getlist("cx4")]
         rhs = [float(val) for val in request.form.getlist("rhs")]
         num_constraints = len(cx1)
         
@@ -135,7 +137,7 @@ def duality_route():
         # Constraints in dual come from the primal objective coefficients
         # Each primal variable becomes a dual constraint
         dual_constraints = []
-        for i in range(3):  # For x1, x2, x3
+        for i in range(4):  # For x1, x2, x3
             constraint = []
             for j in range(num_constraints):
                 # Transpose the constraint matrix
@@ -145,6 +147,8 @@ def duality_route():
                     constraint.append(cx2[j])
                 elif i == 2:
                     constraint.append(cx3[j])
+                elif i == 3:
+                    constraint.append(cx4[j])
             dual_constraints.append(constraint)
         
         # Right-hand side of dual constraints comes from primal objective
@@ -162,7 +166,7 @@ def duality_route():
         # Also solve the primal for comparison
         primal_result = linprog(
             [-x for x in primal_obj],  # Negate for maximization
-            A_ub=[[cx1[j], cx2[j], cx3[j]] for j in range(num_constraints)],
+            A_ub=[[cx1[j], cx2[j], cx3[j], cx4[j]] for j in range(num_constraints)],
             b_ub=rhs,
             method='highs'
         )
@@ -171,7 +175,7 @@ def duality_route():
         duality_data = {
             'primal': {
                 'objective': primal_obj,
-                'constraints': [[cx1[j], cx2[j], cx3[j]] for j in range(num_constraints)],
+                'constraints': [[cx1[j], cx2[j], cx3[j], cx4[j]] for j in range(num_constraints)],
                 'rhs': rhs,
                 'solution': {
                     'x': primal_result.x,
